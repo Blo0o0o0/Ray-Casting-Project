@@ -25,6 +25,8 @@ maze = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 # treat the maze as a 10x10 grid and each block takes up 1x1 area
 player_pos = pygame.Vector2(5.5, 5.5)
 player_speed = pygame.Vector2(0, 0)
+player_vertical_speed = 0
+player_vertical_height = 0
 
 while running:
     # poll for events
@@ -51,6 +53,8 @@ while running:
     if keys[pygame.K_d]:
         player_speed.x += 0.05 * math.sin(angle + math.pi * 0.5)
         player_speed.y -= 0.05 * math.cos(angle + math.pi * 0.5)
+    if keys[pygame.K_c] and player_vertical_height == 0:
+        player_vertical_speed = 3
     if keys[pygame.K_x]:
         pygame.quit()
 
@@ -68,6 +72,13 @@ while running:
     if maze[math.floor(player_pos.y)][math.floor(player_pos.x + player_speed.x)] != 1:
         # move in that direction
         player_pos.x += player_speed.x
+    
+    # Adding the speed to the height and decreasing the speed
+    player_vertical_height += player_vertical_speed
+    player_vertical_speed =  player_vertical_speed - 0.2
+    if player_vertical_height < 0:
+        player_vertical_speed = 0
+        player_vertical_height = 0
 
     for i in range(-45, 45):
         distance = 0
@@ -85,8 +96,8 @@ while running:
                 check_vector = player_pos + ray_vector
 
         length_of_line = screen.get_height()*2 / ((distance+1) * (distance+1))
-        line_start = pygame.Vector2(screen.get_width()*0.5 + (i * 10), 0.5 * (screen.get_height() - length_of_line))
-        line_end = pygame.Vector2(screen.get_width()*0.5 + (i * 10), screen.get_height() - (0.5 * (screen.get_height() - length_of_line)))
+        line_start = pygame.Vector2(screen.get_width()*0.5 + (i * 10), 0.5 * (screen.get_height() - length_of_line) + player_vertical_height / distance * 7)
+        line_end = pygame.Vector2(screen.get_width()*0.5 + (i * 10), screen.get_height() - (0.5 * (screen.get_height() - length_of_line)) + player_vertical_height / distance * 7)
         value = 255 - distance * 30
         if value < 20:
             value = 20
